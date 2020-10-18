@@ -1,14 +1,22 @@
 /* eslint-disable no-use-before-define */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Fetch from '../../utils/fetch'
+
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
 
 export default function Geocoder(props) {
   const { label, latitude, longitude, onChange, value } = props;
   const defaultProps = {
     options: [],
-    getOptionLabel: (option) => option.text,
+    getOptionLabel: (option) => option?.text || '',
   };
 
   // Dummy class here for decorators' using
@@ -32,14 +40,15 @@ export default function Geocoder(props) {
     }
   }
 
+  const prevValue = usePrevious(value)
   useEffect(() => {
     // controlled property value
-    if (value) {
+    if (value && !prevValue) {
       // picked location on Map provider
       Dummy.fetchGeoList(value).then(location => {
         setLocation(location)
       })
-    } else {
+    } else if (!value) {
       // remove value
       setLocation('')
     }
