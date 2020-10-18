@@ -20,6 +20,8 @@ export default function Geocoder(props) {
     longitude,
     // coordinate
     onChange,
+    // location name
+    onLocationChange,
     // controlled prop
     value
   } = props;
@@ -56,6 +58,7 @@ export default function Geocoder(props) {
       // picked location on Map provider
       Dummy.fetchGeoList(value).then(location => {
         setLocation(location)
+        onLocationChange(location?.text)
       })
     } else if (!value) {
       // remove value
@@ -79,6 +82,7 @@ export default function Geocoder(props) {
           const { center = [], text = '' } = item
           setLocation(item)
           onChange(center)
+          onLocationChange(text)
         }}
         renderInput={(params) =>
           <TextField
