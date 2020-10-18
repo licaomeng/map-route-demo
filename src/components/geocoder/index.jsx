@@ -13,7 +13,16 @@ function usePrevious(value) {
 }
 
 export default function Geocoder(props) {
-  const { label, latitude, longitude, onChange, value } = props;
+  const {
+    label,
+    // proximity
+    latitude,
+    longitude,
+    // coordinate
+    onChange,
+    // controlled prop
+    value
+  } = props;
   const defaultProps = {
     options: [],
     getOptionLabel: (option) => option?.text || '',
@@ -66,8 +75,10 @@ export default function Geocoder(props) {
         value={location}
         onSelect={(v) => {
           const options = autocompleteProps.options
-          const { center } = options.find(item => item.text === v.target.value) || {}
-          onChange(center || [])
+          const item = options.find(item => item.text === v.target.value) || {}
+          const { center = [], text = '' } = item
+          setLocation(item)
+          onChange(center)
         }}
         renderInput={(params) =>
           <TextField
