@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
-import ReactMapGL, { Marker } from 'react-map-gl';
+import ReactMapGL, { Marker, GeolocateControl } from 'react-map-gl';
 import Geocoder from './components/geocoder'
 import PolylineOverlay from './components/polyline-overlay'
+import Fetch from './utils/fetch'
+import loading from './utils/decorators/loading'
+import handleError from './utils/decorators/handleError'
+import "mapbox-gl/dist/mapbox-gl.css";
 import './App.css';
 
 const drawerWidth = 360;
@@ -28,6 +32,12 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     flexDirection: 'column'
   },
+  resultContainer: {
+    display: 'flex',
+    alignItems: 'left',
+    margin: '28px',
+    flexDirection: 'column'
+  },
   // necessary for content to be below app bar
   toolbar: theme.mixins.toolbar,
   content: {
@@ -46,6 +56,7 @@ function App(props) {
     zoom: 13
   }
   const [viewport, setViewport] = useState({ ...initViewport })
+  const [waypoints, setWaypoints] = useState([])
   if ("geolocation" in navigator) {
     navigator.geolocation.getCurrentPosition(position => {
       const { latitude, longitude } = viewport
@@ -61,6 +72,9 @@ function App(props) {
   const classes = useStyles();
   const [start, setStart] = useState([])
   const [end, setEnd] = useState([])
+  const [startText, setStartText] = useState('')
+  const [endText, setEndText] = useState('')
+  const [result, setResult] = useState({})
   const handleClick = val => {
     const { lngLat: [longitude, latitude] } = val
     if (!start.length) {
@@ -69,6 +83,36 @@ function App(props) {
       setEnd([longitude, latitude])
     }
   }
+
+  // this dummy class for the use of decorators
+  class Dummy {
+    @handleError()
+    @loading()
+    static async fetchRoute() {
+      const { token } = await Fetch('//mock-api.dev.lalamove.com/route', {
+        method: 'POST',
+        // mode: "no-cors",
+        body: JSON.stringify({
+          origin: startText,
+          destination: endText
+        })
+      });
+      const res = await Fetch(`//mock-api.dev.lalamove.com/route/${token}`)
+      const { path, total_distance, total_time } = res
+      setWaypoints(path)
+      setResult({ total_distance, total_time })
+    }
+  }
+
+  useEffect(() => {
+    if (startText && endText) {
+      Dummy.fetchRoute()
+    }
+    if (!startText || !endText) {
+      setWaypoints([])
+      setResult({})
+    }
+  }, [startText, endText])
 
   return (
     <div style={{ height: '100vh', width: '100%' }}>
@@ -87,6 +131,7 @@ function App(props) {
             longitude={viewport.longitude}
             value={start.join(',')}
             onChange={(start) => setStart(start)}
+            onLocationChange={v => setStartText(v)}
           />
           <Geocoder
             label="Drop-off point"
@@ -94,7 +139,12 @@ function App(props) {
             longitude={viewport.longitude}
             value={end.join(',')}
             onChange={(end) => setEnd(end)}
+            onLocationChange={v => setEndText(v)}
           />
+        </div>
+        <div className={classes.resultContainer}>
+          {result.total_distance && <span>Total Distance: {result.total_distance}</span>}
+          {result.total_time && <span>Total Time: {result.total_time}</span>}
         </div>
       </Drawer>
       <ReactMapGL
@@ -103,6 +153,16 @@ function App(props) {
         onViewportChange={(viewport) => setViewport(viewport)}
         onClick={handleClick}
       >
+        <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '20px' }}>
+          {
+            (!startText || !endText) && (
+              <GeolocateControl
+                positionOptions={{ enableHighAccuracy: true }}
+                trackUserLocation={true}
+              />
+            )
+          }
+        </div>
         {
           start.length && (
             <Marker offsetTop={-10} offsetLeft={-5} longitude={start[0]} latitude={start[1]}>
@@ -124,9 +184,18 @@ function App(props) {
             </Marker>
           )
         }
-        <PolylineOverlay points={[
-          [114.174601, 22.293033],
-          [114.17204799999999, 22.298614]]} />
+        {
+          waypoints.map((item, i) =>
+            <Marker offsetTop={-10} offsetLeft={-15} longitude={Number(item[1])} latitude={Number(item[0])}>
+              <b>{++i}</b>
+            </Marker>
+          )
+        }
+        {
+          startText && endText && (
+            <PolylineOverlay points={waypoints} />
+          )
+        }
       </ReactMapGL>
     </div>
   );

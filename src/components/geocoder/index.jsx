@@ -31,25 +31,22 @@ export default function Geocoder(props) {
     getOptionLabel: (option) => option?.text || '',
   };
 
-  // Dummy class here for decorators' using
-  class Dummy {
-    // invoke Mapbox Geocoding API
-    // Doc see: https://docs.mapbox.com/api/search/#geocoding
-    // searchText supports two formats: 1. plain text; 2. string `${longitude},${latitude}`
-    static async fetchGeoList(searchText) {
-      // access token
-      const accessToken = process.env.REACT_APP_ACCESS_TOKEN
-      // default to current location
-      const proximity = [longitude, latitude]
-      const res = await Fetch(`//api.mapbox.com/geocoding/v5/mapbox.places/${encodeURI(searchText)}.json?proximity=${proximity}&access_token=${accessToken}`)
-      // update Autocomplete options
-      setAutocompleteProps({
-        ...defaultProps,
-        options: res.features
-      })
-      // return first option to fill TextField
-      return res.features?.[0]
-    }
+  // invoke Mapbox Geocoding API
+  // Doc see: https://docs.mapbox.com/api/search/#geocoding
+  // searchText supports two formats: 1. plain text; 2. string `${longitude},${latitude}`
+  const fetchGeoList = async (searchText) => {
+    // access token
+    const accessToken = process.env.REACT_APP_ACCESS_TOKEN
+    // default to current location
+    const proximity = [longitude, latitude]
+    const res = await Fetch(`//api.mapbox.com/geocoding/v5/mapbox.places/${encodeURI(searchText)}.json?proximity=${proximity}&access_token=${accessToken}`)
+    // update Autocomplete options
+    setAutocompleteProps({
+      ...defaultProps,
+      options: res.features
+    })
+    // return first option to fill TextField
+    return res.features?.[0]
   }
 
   const prevValue = usePrevious(value)
@@ -57,7 +54,7 @@ export default function Geocoder(props) {
     // controlled property value
     if (value && !prevValue) {
       // picked location on Map provider
-      Dummy.fetchGeoList(value).then(location => {
+      fetchGeoList(value).then(location => {
         setLocation(location)
         onLocationChange(location?.text)
       })
@@ -91,7 +88,7 @@ export default function Geocoder(props) {
             label={label}
             margin="normal"
             onChange={v => {
-              Dummy.fetchGeoList(v.target.value)
+              fetchGeoList(v.target.value)
             }}
           />
         }
