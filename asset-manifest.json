@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/map-route-demo/static/css/main.5f361e03.chunk.css",
+    "main.js": "/map-route-demo/static/js/main.c763e9dc.chunk.js",
+    "main.js.map": "/map-route-demo/static/js/main.c763e9dc.chunk.js.map",
+    "runtime-main.js": "/map-route-demo/static/js/runtime-main.4b1aec3e.js",
+    "runtime-main.js.map": "/map-route-demo/static/js/runtime-main.4b1aec3e.js.map",
+    "static/css/2.b4a16772.chunk.css": "/map-route-demo/static/css/2.b4a16772.chunk.css",
+    "static/js/2.ff2b7348.chunk.js": "/map-route-demo/static/js/2.ff2b7348.chunk.js",
+    "static/js/2.ff2b7348.chunk.js.map": "/map-route-demo/static/js/2.ff2b7348.chunk.js.map",
+    "index.html": "/map-route-demo/index.html",
+    "precache-manifest.46264216272194b06d274adb9b9512a1.js": "/map-route-demo/precache-manifest.46264216272194b06d274adb9b9512a1.js",
+    "service-worker.js": "/map-route-demo/service-worker.js",
+    "static/css/2.b4a16772.chunk.css.map": "/map-route-demo/static/css/2.b4a16772.chunk.css.map",
+    "static/css/main.5f361e03.chunk.css.map": "/map-route-demo/static/css/main.5f361e03.chunk.css.map",
+    "static/js/2.ff2b7348.chunk.js.LICENSE.txt": "/map-route-demo/static/js/2.ff2b7348.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.4b1aec3e.js",
+    "static/css/2.b4a16772.chunk.css",
+    "static/js/2.ff2b7348.chunk.js",
+    "static/css/main.5f361e03.chunk.css",
+    "static/js/main.c763e9dc.chunk.js"
+  ]
+}
