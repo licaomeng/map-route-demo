@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
+import IconButton from '@material-ui/core/IconButton';
+import SearchIcon from '@material-ui/icons/Search';
 import ReactMapGL, { Marker, GeolocateControl } from 'react-map-gl';
-import { isSafari } from "react-device-detect";
+import { isSafari, isMobile } from "react-device-detect";
 import Geocoder from './components/geocoder'
 import PolylineOverlay from './components/polyline-overlay'
 import Fetch from './utils/fetch'
@@ -30,13 +32,26 @@ const useStyles = makeStyles((theme) => ({
   },
   drawerContainer: {
     display: 'flex',
+    flexDirection: 'row'
+  },
+  geolocateControl: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    margin: '20px'
+  },
+  inputContainer: {
+    display: 'flex',
     alignItems: 'center',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    flexGrow: 1
+  },
+  searchBtnContainer: {
+    padding: '60px 0'
   },
   resultContainer: {
     display: 'flex',
     alignItems: 'left',
-    margin: '28px',
+    margin: '-8px 5% 15px 5%',
     flexDirection: 'column'
   },
   // necessary for content to be below app bar
@@ -56,8 +71,14 @@ function App(props) {
     longitude: 122.4376,
     zoom: 13
   }
+  const classes = useStyles();
   const [viewport, setViewport] = useState({ ...initViewport })
   const [waypoints, setWaypoints] = useState([])
+  const [start, setStart] = useState([])
+  const [end, setEnd] = useState([])
+  const [startText, setStartText] = useState('')
+  const [endText, setEndText] = useState('')
+  const [result, setResult] = useState({})
   if ("geolocation" in navigator) {
     navigator.geolocation.getCurrentPosition(position => {
       const { latitude, longitude } = viewport
@@ -70,12 +91,6 @@ function App(props) {
       }
     });
   }
-  const classes = useStyles();
-  const [start, setStart] = useState([])
-  const [end, setEnd] = useState([])
-  const [startText, setStartText] = useState('')
-  const [endText, setEndText] = useState('')
-  const [result, setResult] = useState({})
   const handleClick = val => {
     const { lngLat: [longitude, latitude] } = val
     if (!start.length) {
@@ -145,73 +160,80 @@ function App(props) {
     </Marker>
   }
 
-  return (
-    <div style={{ height: '100vh', width: '100%' }}>
-      <Drawer
-        className={classes.drawer}
-        variant="permanent"
-        classes={{
-          paper: classes.drawerPaper,
-        }}
-        anchor="left"
-      >
-        <div className={classes.drawerContainer}>
+  const renderSearchBar = () => {
+    return <>
+      <div className={classes.drawerContainer}>
+        <div className={classes.inputContainer}>
           <Geocoder
             label="Starting location"
             latitude={viewport.latitude}
             longitude={viewport.longitude}
             value={start.join(',')}
             onChange={(start) => setStart(start)}
-            onLocationChange={v => setStartText(v)}
-          />
+            onLocationChange={v => setStartText(v)} />
           <Geocoder
             label="Drop-off point"
             latitude={viewport.latitude}
             longitude={viewport.longitude}
             value={end.join(',')}
             onChange={(end) => setEnd(end)}
-            onLocationChange={v => setEndText(v)}
-          />
+            onLocationChange={v => setEndText(v)} />
         </div>
-        <div className={classes.resultContainer}>
-          {result.total_distance && <span>Total Distance: {result.total_distance}</span>}
-          {result.total_time && <span>Total Time: {result.total_time}</span>}
-        </div>
-      </Drawer>
+        {
+          startText && endText && (
+            <span className={classes.searchBtnContainer}>
+              <IconButton aria-label="search" className={classes.margin}
+                onClick={() => Dummy.fetchRoute()}>
+                <SearchIcon fontSize="inherit" />
+              </IconButton>
+            </span>
+          )
+        }
+      </div>
+
+      <div className={classes.resultContainer}>
+        {result.total_distance && <span>Total Distance: {result.total_distance}</span>}
+        {result.total_time && <span>Total Time: {result.total_time}</span>}
+      </div>
+    </>
+  }
+
+  return (
+    <div style={{ height: '100vh', width: '100%' }}>
+      {
+        !isMobile ? (
+          <Drawer
+            className={classes.drawer}
+            variant="permanent"
+            classes={{ paper: classes.drawerPaper }}
+            anchor="left">
+            {renderSearchBar()}
+          </Drawer>
+        ) : renderSearchBar()
+      }
       <ReactMapGL
         {...viewport}
         mapboxApiAccessToken={process.env.REACT_APP_ACCESS_TOKEN}
         onViewportChange={(viewport) => setViewport(viewport)}
-        onClick={handleClick}
-      >
-        <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '20px' }}>
+        onClick={handleClick}>
+        <div className={classes.geolocateControl}>
           {
-            (!startText || !endText) && (
-              <GeolocateControl
-                positionOptions={{ enableHighAccuracy: true }}
-                trackUserLocation={true}
-              />
-            )
+            (!startText || !endText) && <GeolocateControl
+              positionOptions={{ enableHighAccuracy: true }}
+              trackUserLocation={true} />
           }
         </div>
         {
-          renderStartMarker()
-        }
-        {
-          renderEndMarker()
-        }
-        {
           waypoints.map((item, i) =>
-            <Marker offsetTop={-10} offsetLeft={-15} longitude={Number(item[1])} latitude={Number(item[0])}>
+            <Marker key={i} offsetTop={-10} offsetLeft={-15}
+              longitude={Number(item[1])} latitude={Number(item[0])}>
               <b>{++i}</b>
             </Marker>
           )
         }
-        {
-          startText && endText && (
-            <PolylineOverlay points={waypoints} />
-          )
-        }
+        {renderStartMarker()}
+        {renderEndMarker()}
+        {startText && endText && <PolylineOverlay points={waypoints} />}
       </ReactMapGL>
     </div>
   );

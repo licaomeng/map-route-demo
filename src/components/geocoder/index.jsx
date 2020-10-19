@@ -70,7 +70,7 @@ export default function Geocoder(props) {
   const [location, setLocation] = useState('')
 
   return (
-    <div style={{ width: 300 }}>
+    <div style={{ width: '90%' }}>
       <Autocomplete
         {...autocompleteProps}
         value={isEmptyObj(location) ? '' : location}
