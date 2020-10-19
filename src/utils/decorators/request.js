@@ -41,7 +41,7 @@ function openAlert(e) {
   ReactDOM.render(
     <Snackbar open={true}>
       <Alert severity="error">
-        {e}
+        {e?.message || e}
       </Alert>
     </Snackbar>,
     document.getElementById('alert')
