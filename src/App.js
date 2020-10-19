@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import ReactMapGL, { Marker, GeolocateControl } from 'react-map-gl';
+import { isSafari } from "react-device-detect";
 import Geocoder from './components/geocoder'
 import PolylineOverlay from './components/polyline-overlay'
 import Fetch from './utils/fetch'
@@ -114,6 +115,36 @@ function App(props) {
     }
   }, [startText, endText])
 
+  const renderEndMarker = () => {
+    if (!end.length) {
+      return null
+    }
+    if (isSafari) {
+      return <Marker offsetTop={-16} offsetLeft={-32} longitude={end[0]} latitude={end[1]}>
+        <svg width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+          <image href="https://www.flaticon.com/svg/static/icons/svg/252/252025.svg" height="32" width="32" />
+        </svg>
+      </Marker>
+    }
+    return <Marker offsetTop={-27} offsetLeft={-11} longitude={end[0]} latitude={end[1]}>
+      <svg width="12" height="12" xmlns="http://www.w3.org/2000/svg">
+        <image href="https://www.flaticon.com/svg/static/icons/svg/565/565949.svg" height="12" width="12" />
+      </svg>
+      <svg transform="translate(-22,-8)" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+        <image href="https://www.flaticon.com/svg/static/icons/svg/252/252025.svg" height="32" width="32" />
+      </svg>
+    </Marker>
+  }
+
+  const renderStartMarker = () => {
+    if (!start.length) return null
+    return <Marker offsetTop={-10} offsetLeft={-5} longitude={start[0]} latitude={start[1]}>
+      <svg width="10" height="10" xmlns="http://www.w3.org/2000/svg">
+        <image href="https://www.flaticon.com/svg/static/icons/svg/33/33759.svg" height="10" width="10" />
+      </svg>
+    </Marker>
+  }
+
   return (
     <div style={{ height: '100vh', width: '100%' }}>
       <Drawer
@@ -164,25 +195,10 @@ function App(props) {
           }
         </div>
         {
-          start.length && (
-            <Marker offsetTop={-10} offsetLeft={-5} longitude={start[0]} latitude={start[1]}>
-              <svg width="10" height="10" xmlns="http://www.w3.org/2000/svg">
-                <image href="https://www.flaticon.com/svg/static/icons/svg/33/33759.svg" height="10" width="10" />
-              </svg>
-            </Marker>
-          )
+          renderStartMarker()
         }
         {
-          end.length && (
-            <Marker offsetTop={-27} offsetLeft={-11} longitude={end[0]} latitude={end[1]}>
-              <svg width="12" height="12" xmlns="http://www.w3.org/2000/svg">
-                <image href="https://www.flaticon.com/svg/static/icons/svg/565/565949.svg" height="12" width="12" />
-              </svg>
-              <svg transform="translate(-22,-8)" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
-                <image href="https://www.flaticon.com/svg/static/icons/svg/252/252025.svg" height="32" width="32" />
-              </svg>
-            </Marker>
-          )
+          renderEndMarker()
         }
         {
           waypoints.map((item, i) =>
