@@ -12,7 +12,7 @@ async function Fetch(...args) {
   let [url, options, times = 0] = args
   if (times >= 5) {
     // retry times limited to 5
-    return Promise.reject('request time out!')
+    return Promise.reject('request time out')
   }
   const res = await fetch(url, options)
   if (res.ok) {
