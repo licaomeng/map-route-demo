@@ -80,6 +80,7 @@ function App(props) {
   const [endText, setEndText] = useState('')
   const [result, setResult] = useState({})
   if ("geolocation" in navigator) {
+    // default to the current location
     navigator.geolocation.getCurrentPosition(position => {
       const { latitude, longitude } = viewport
       if (latitude === initViewport.latitude && longitude === initViewport.longitude) {
@@ -122,9 +123,11 @@ function App(props) {
 
   useEffect(() => {
     if (startText && endText) {
+      // automatically perform request when both filled
       Dummy.fetchRoute()
     }
     if (!startText || !endText) {
+      // reset when one of them removed
       setWaypoints([])
       setResult({})
     }
