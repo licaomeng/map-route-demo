@@ -23,7 +23,7 @@ function Alert(props) {
 
 function closeLoading() {
   ReactDOM.render(
-    <span></span>,
+    <></>,
     document.getElementById('loading')
   );
 }
@@ -50,7 +50,7 @@ function openAlert(e) {
 
 function closeAlert() {
   ReactDOM.render(
-    <span></span>,
+    <></>,
     document.getElementById('alert')
   );
 }
