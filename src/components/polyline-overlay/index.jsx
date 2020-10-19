@@ -12,7 +12,7 @@ class PolylineOverlay extends PureComponent {
       ctx.strokeStyle = color
       ctx.beginPath()
       points.forEach(point => {
-        const pixel = project([point[0], point[1]])
+        const pixel = project([Number(point[1]), Number(point[0])])
         ctx.lineTo(pixel[0], pixel[1])
       })
       ctx.stroke()
