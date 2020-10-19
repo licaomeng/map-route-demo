@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Fetch from '../../utils/fetch'
+import { isEmptyObj } from '../../utils/is'
 
 function usePrevious(value) {
   const ref = useRef();
@@ -75,7 +76,7 @@ export default function Geocoder(props) {
     <div style={{ width: 300 }}>
       <Autocomplete
         {...autocompleteProps}
-        value={location}
+        value={isEmptyObj(location) ? '' : location}
         onSelect={(v) => {
           const options = autocompleteProps.options
           const item = options.find(item => item.text === v.target.value) || {}
